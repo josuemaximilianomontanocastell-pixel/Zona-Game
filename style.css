@@ -1,0 +1,112 @@
+:root{--bg:#0d0f1a;--card:#171a2b;--tx:#e9ecff;--mut:#8b92b8;--pri:#7c3aed;--acc:#22d3ee;--bd:#2a2f4d;--red:#ef4444;--ok:#22c55e}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--tx)}
+main{max-width:1150px;margin:0 auto;padding:20px}
+section{scroll-margin-top:70px}
+
+/* NAVBAR */
+header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding:12px 24px;background:var(--card);border-bottom:2px solid var(--pri);position:sticky;top:0;z-index:20}
+header h1{font-size:1.4rem;margin:0;background:linear-gradient(90deg,var(--pri),var(--acc));-webkit-background-clip:text;background-clip:text;color:transparent}
+nav{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+nav a{cursor:pointer;color:var(--mut);font-size:.95rem}
+nav a:hover{color:var(--acc)}
+
+/* BOTONES E INPUTS */
+button{background:var(--pri);color:#fff;border:0;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:.9rem}
+button:hover:not(:disabled){filter:brightness(1.15)}
+button.sec{background:transparent;color:var(--tx);border:1px solid var(--bd)}
+button.del{background:var(--red)}
+button:disabled{opacity:.4;cursor:not-allowed}
+input,select{padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font-size:.9rem;max-width:100%}
+
+/* HERO */
+.hero{position:relative;height:420px;overflow:hidden;background:var(--card)}
+.slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity .8s;background-color:var(--card)}
+.slide.on{opacity:1}
+.ov{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;gap:10px;padding:0 8%;background:linear-gradient(90deg,rgba(13,15,26,.95) 10%,rgba(13,15,26,.35) 70%,transparent)}
+.ov h2{font-size:clamp(1.8rem,5vw,3.2rem);margin:0;max-width:600px}
+.ov .price{font-size:1.6rem}
+.ov div{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.hbtn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.5);font-size:1.6rem;padding:6px 14px;z-index:3}
+.hbtn.l{left:12px}.hbtn.r{right:12px}
+.dots{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:3}
+.dots span{width:10px;height:10px;border-radius:50%;background:var(--mut);cursor:pointer}
+.dots span.on{background:var(--acc);width:26px;border-radius:6px}
+
+/* BENEFICIOS */
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;max-width:1150px;margin:20px auto 0;padding:0 20px}
+.strip div{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px}
+.strip span{font-size:1.8rem}
+.strip small{color:var(--mut)}
+
+/* TÍTULOS */
+.titulo{font-size:1.5rem;margin:34px 0 14px;padding-left:12px;border-left:4px solid var(--acc)}
+
+/* CARRUSELES */
+.car{position:relative}
+.track{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 12px;scrollbar-width:none}
+.track::-webkit-scrollbar{display:none}
+.track .card{flex:0 0 230px;scroll-snap-align:start}
+.arr{position:absolute;top:40%;z-index:3;background:rgba(0,0,0,.65);font-size:1.5rem;padding:6px 13px;border-radius:50%}
+.arr.l{left:-10px}.arr.r{right:-10px}
+
+/* CHIPS */
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{background:var(--card);border:1px solid var(--bd);padding:10px 20px;border-radius:30px;cursor:pointer}
+.chip:hover{border-color:var(--acc);color:var(--acc)}
+
+/* CARDS Y GRID */
+.bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.bar input{flex:1;min-width:180px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;transition:transform .15s,border-color .15s}
+.card:hover{transform:translateY(-3px);border-color:var(--acc)}
+.card img{width:100%;height:150px;object-fit:cover;background:var(--bd)}
+.card .b{padding:12px;display:flex;flex-direction:column;gap:6px;flex:1}
+.cat{font-size:.72rem;color:var(--acc);text-transform:uppercase;letter-spacing:.05em}
+.price{font-weight:700;font-size:1.15rem}
+.stock{font-size:.8rem;color:var(--ok)}
+.stock.low{color:var(--red)}
+.buy{display:flex;gap:6px;margin-top:auto}
+.buy input{width:60px}
+.buy button{flex:1}
+
+/* CONTACTO Y FOOTER */
+.contact{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.contact div{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;line-height:1.6}
+footer{text-align:center;padding:26px;margin-top:40px;background:var(--card);border-top:2px solid var(--pri);color:var(--mut)}
+
+/* ADMIN */
+.panel{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:20px}
+.panel h2{margin-top:0;font-size:1.05rem}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:end}
+.form label{font-size:.8rem;color:var(--mut);display:flex;flex-direction:column;gap:4px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{text-align:left;padding:8px;border-bottom:1px solid var(--bd)}
+td img{width:40px;height:40px;object-fit:cover;border-radius:6px}
+.login{max-width:320px;margin:40px auto;display:flex;flex-direction:column;gap:10px}
+
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--acc);color:#04222b;padding:10px 18px;border-radius:8px;display:none;z-index:50;font-weight:600}
+.hide{display:none}
+
+@media(max-width:600px){.hero{height:340px}.arr{display:none}nav{gap:10px}}
+/* ===== BENEFICIOS CLICABLES Y VENTANAS ===== */
+.strip .clic{cursor:pointer;transition:transform .15s,border-color .15s}
+.strip .clic:hover{border-color:var(--acc);transform:translateY(-3px)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:60;padding:16px}
+.modal.hide{display:none}
+.mbox{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:22px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:10px}
+.mbox h3{margin:0}
+.mbox p{margin:0;color:var(--mut)}
+.mbox small{color:var(--mut)}
+.num{font-size:1.9rem;font-weight:700;color:var(--acc)!important;letter-spacing:.05em}
+.btnw{display:inline-block;background:#25d366;color:#04220f;padding:9px 16px;border-radius:8px;font-weight:700;text-decoration:none;text-align:center}
+.marcas{display:flex;gap:10px}
+.marcas b{border:1px solid var(--bd);padding:4px 10px;border-radius:6px;font-style:italic}
+.dos{display:flex;gap:10px}
+.dos input{flex:1;min-width:0}
+.mbox input{width:100%}
+.contact a{color:var(--acc)}
+.contact .btnw{color:#04220f;margin-top:6px}

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GameZone - Tienda de Videojuegos</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1 onclick="ir('inicio')" style="cursor:pointer">🎮 GameZone</h1>
+  <nav>
+    <a onclick="ir('inicio')">Inicio</a>
+    <a onclick="ir('populares')">Populares</a>
+    <a onclick="ir('novedades')">Novedades</a>
+    <a onclick="ir('catalogo')">Catálogo</a>
+    <a onclick="ir('contacto')">Contacto</a>
+    <button class="sec" onclick="vista('admin')">Admin</button>
+    <button class="sec hide" id="btnSalir" onclick="salir()">Salir</button>
+  </nav>
+</header>
+
+<div id="tienda">
+
+  <!-- BANNER PRINCIPAL -->
+  <section class="hero" id="inicio">
+    <div id="heroSlides"></div>
+    <button class="hbtn l" onclick="slide(heroIdx-1)">‹</button>
+    <button class="hbtn r" onclick="slide(heroIdx+1)">›</button>
+    <div class="dots" id="dots"></div>
+  </section>
+
+  <!-- BENEFICIOS (clic en cada uno) -->
+  <section class="strip">
+    <div class="clic" onclick="info('envios')"><span>🚚</span><b>Envíos rápidos</b><small>A todo el país</small></div>
+    <div class="clic" onclick="info('pago')"><span>🔒</span><b>Pago seguro</b><small>Protegemos tu compra</small></div>
+    <div class="clic" onclick="info('soporte')"><span>🎧</span><b>Soporte</b><small>Te ayudamos siempre</small></div>
+    <div><span>✅</span><b>100% originales</b><small>Juegos garantizados</small></div>
+  </section>
+
+  <main>
+    <!-- POPULARES -->
+    <section id="populares">
+      <h2 class="titulo">🔥 Más populares</h2>
+      <div class="car">
+        <button class="arr l" onclick="mover('c1',-1)">‹</button>
+        <div class="track" id="c1"></div>
+        <button class="arr r" onclick="mover('c1',1)">›</button>
+      </div>
+    </section>
+
+    <!-- CATEGORÍAS -->
+    <section>
+      <h2 class="titulo">🕹️ Explora por categoría</h2>
+      <div class="chips" id="chips"></div>
+    </section>
+
+    <!-- NOVEDADES -->
+    <section id="novedades">
+      <h2 class="titulo">✨ Recién agregados</h2>
+      <div class="car">
+        <button class="arr l" onclick="mover('c2',-1)">‹</button>
+        <div class="track" id="c2"></div>
+        <button class="arr r" onclick="mover('c2',1)">›</button>
+      </div>
+    </section>
+
+    <!-- CATÁLOGO -->
+    <section id="catalogo">
+      <h2 class="titulo">📚 Catálogo completo</h2>
+      <div class="bar">
+        <input id="q" placeholder="Buscar videojuego..." oninput="renderCatalogo()">
+        <select id="fcat" onchange="renderCatalogo()"></select>
+      </div>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <!-- CONTACTO (se llena desde app.js) -->
+    <section id="contacto">
+      <h2 class="titulo">📩 Contacto</h2>
+      <div class="contact" id="contactoBox"></div>
+    </section>
+  </main>
+</div>
+
+<!-- PANEL ADMIN -->
+<main id="admin" class="hide"></main>
+
+<footer>
+  <b>🎮 GameZone</b> · Tu tienda de videojuegos · © 2026 Todos los derechos reservados
+</footer>
+
+<!-- VENTANA EMERGENTE -->
+<div id="modal" class="modal hide" onclick="if(event.target===this)cerrar()">
+  <div class="mbox" id="mbox"></div>
+</div>
+
+<div id="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>
