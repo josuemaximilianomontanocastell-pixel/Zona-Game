@@ -1,8 +1,14 @@
-// ====== CONFIGURACIÓN ======
+// ====== CONFIGURACIÓN (cambia estos datos aquí) ======
 const API_URL = "https://6af349bcd2377d6c3704d4b6.mockapi.io"; // URL base de tu MockAPI
 const ADMIN = { user: "admin", pass: "1234" };                 // login por código
+const NUM_DUENO = "64461580";                                  // número del dueño
+const NUM_SOPORTE = "64461580";                                // número de soporte
+const CORREO = "josuemaximilianomontanocastel@gmail.com";      // revisa que esté bien escrito
+const wa = (num, msg) => `https://wa.me/591${num}?text=${encodeURIComponent(msg)}`;
 
 let productos = [], categorias = [], editId = null, heroIdx = 0, heroN = 0;
+let carrito = []; // [{ id, cant }]
+
 const $ = s => document.querySelector(s);
 const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const PH = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200'><rect width='300' height='200' fill='%232a2f4d'/><text x='150' y='120' text-anchor='middle' font-size='64'>🎮</text></svg>";
@@ -55,7 +61,7 @@ function card(p, conCantidad) {
       <span class="stock ${st <= 5 ? "low" : ""}">${st > 0 ? "Stock: " + st : "Agotado"}</span>
       <div class="buy">
         ${conCantidad ? `<input type="number" id="n${p.id}" value="1" min="1" max="${st}" ${st ? "" : "disabled"}>` : ""}
-        <button onclick="comprar('${p.id}', ${n})" ${st ? "" : "disabled"}>Comprar</button>
+        <button onclick="agregar('${p.id}', ${n})" ${st ? "" : "disabled"}>🛒 Añadir</button>
       </div>
     </div></div>`;
 }
@@ -64,13 +70,14 @@ function card(p, conCantidad) {
 function renderHero() {
   const top = [...productos].filter(p => p.stock > 0).sort((a, b) => b.precio - a.precio).slice(0, 4);
   heroN = top.length;
+  if (heroIdx >= heroN) heroIdx = 0;
   $("#heroSlides").innerHTML = top.length ? top.map((p, i) => `
     <div class="slide ${i === heroIdx ? "on" : ""}" style="background-image:url('${esc(p.imagen)}')">
       <div class="ov">
         <span class="cat">${esc(p.categoria)}</span>
         <h2>${esc(p.nombre)}</h2>
         <span class="price">Bs. ${Number(p.precio).toFixed(2)}</span>
-        <div><button onclick="comprar('${p.id}',1)">Comprar ahora</button>
+        <div><button onclick="agregar('${p.id}',1)">Añadir al carrito</button>
         <button class="sec" onclick="ir('catalogo')">Ver catálogo</button></div>
       </div></div>`).join("")
     : `<div class="slide on"><div class="ov"><h2>Bienvenido a GameZone</h2><span>Los mejores videojuegos al mejor precio</span></div></div>`;
@@ -115,20 +122,112 @@ function renderCatalogo() {
   $("#grid").innerHTML = lista.length ? lista.map(p => card(p, true)).join("") : `<p>No hay videojuegos para mostrar.</p>`;
 }
 
-// ====== COMPRA (RESTA STOCK) ======
-async function comprar(id, n) {
-  const p = productos.find(x => x.id === id); n = parseInt(n);
-  if (!n || n < 1) return toast("Cantidad inválida");
-  if (n > p.stock) return toast("No hay stock suficiente");
-  try {
-    const nuevo = await api("/productos/" + id, "PUT", { ...p, stock: Number(p.stock) - n });
-    productos = productos.map(x => x.id === id ? nuevo : x);
-    renderTodo();
-    toast(`Compraste ${n} × ${p.nombre}`);
-  } catch (e) { toast("Error al procesar la compra"); }
+// ====== VENTANAS EMERGENTES ======
+function abrir(html) { $("#mbox").innerHTML = html; $("#modal").classList.remove("hide"); }
+function cerrar() { $("#modal").classList.add("hide"); }
+
+function info(tipo) {
+  if (tipo === "envios") abrir(`
+    <h3>🚚 Envíos rápidos a todo el país</h3>
+    <p>Para coordinar tu envío comunícate con el dueño:</p>
+    <p class="num">📞 ${NUM_DUENO}</p>
+    <a class="btnw" href="${wa(NUM_DUENO, "Hola, quiero coordinar un envío")}" target="_blank" rel="noopener">Escribir por WhatsApp</a>
+    <button class="sec" onclick="cerrar()">Cerrar</button>`);
+
+  if (tipo === "soporte") abrir(`
+    <h3>🎧 Soporte</h3>
+    <p>Si no puedes contactarnos o no se pudo hacer tu compra, comunícate a este número de referencia:</p>
+    <p class="num">📞 ${NUM_SOPORTE}</p>
+    <a class="btnw" href="${wa(NUM_SOPORTE, "Hola, necesito soporte con mi compra")}" target="_blank" rel="noopener">Pedir ayuda por WhatsApp</a>
+    <button class="sec" onclick="cerrar()">Cerrar</button>`);
+
+  if (tipo === "pago") abrir(`
+    <h3>🔒 Pago seguro</h3>
+    <p>Paga con tu tarjeta de débito o crédito.</p>
+    <div class="marcas"><b>VISA</b><b>Mastercard</b></div>
+    <input id="tn" placeholder="Número de tarjeta" inputmode="numeric" maxlength="19"
+      oninput="this.value=this.value.replace(/\\D/g,'').replace(/(.{4})/g,'$1 ').trim()">
+    <input id="tt" placeholder="Nombre del titular">
+    <div class="dos">
+      <input id="tv" placeholder="MM/AA" inputmode="numeric" maxlength="5"
+        oninput="let d=this.value.replace(/\\D/g,'');this.value=d.length>2?d.slice(0,2)+'/'+d.slice(2,4):d">
+      <input id="tc" placeholder="CVV" type="password" inputmode="numeric" maxlength="3"
+        oninput="this.value=this.value.replace(/\\D/g,'')">
+    </div>
+    <small>🔐 Demostración: los datos de la tarjeta no se envían ni se guardan.</small>
+    <button onclick="pagar()">Pagar</button>
+    <button class="sec" onclick="cerrar()">Cancelar</button>`);
 }
 
-// ====== ADMIN ======
+function pagar() {
+  const num = $("#tn").value.replace(/\s/g, "");
+  if (num.length !== 16) return toast("El número de tarjeta debe tener 16 dígitos");
+  if (!$("#tt").value.trim()) return toast("Escribe el nombre del titular");
+  if (!/^\d{2}\/\d{2}$/.test($("#tv").value)) return toast("Fecha inválida (MM/AA)");
+  if ($("#tc").value.length !== 3) return toast("El CVV debe tener 3 dígitos");
+  cerrar();
+  toast("✅ Pago realizado correctamente (demostración)");
+}
+
+// ====== CARRITO ======
+function agregar(id, n) {
+  const p = productos.find(x => x.id === id); n = parseInt(n);
+  if (!n || n < 1) return toast("Cantidad inválida");
+  const item = carrito.find(c => c.id === id), ya = item ? item.cant : 0;
+  if (ya + n > p.stock) return toast("No hay stock suficiente");
+  if (item) item.cant += n; else carrito.push({ id, cant: n });
+  actualizarCarrito();
+  toast(`🛒 Añadido: ${n} × ${p.nombre}`);
+}
+
+const totalItems = () => carrito.reduce((s, c) => s + c.cant, 0);
+const totalPrecio = () => carrito.reduce((s, c) => s + c.cant * Number(productos.find(p => p.id === c.id)?.precio || 0), 0);
+function actualizarCarrito() { $("#cartN").textContent = totalItems(); }
+
+function verCarrito() {
+  carrito = carrito.filter(c => productos.some(p => p.id === c.id));
+  actualizarCarrito();
+  if (!carrito.length) return abrir(`<h3>🛒 Tu carrito</h3><p>Todavía no añadiste nada.</p><button class="sec" onclick="cerrar()">Cerrar</button>`);
+  const filas = carrito.map(c => {
+    const p = productos.find(x => x.id === c.id);
+    return `<div class="fila"><span>${c.cant} × ${esc(p.nombre)}</span><span>Bs. ${(c.cant * p.precio).toFixed(2)}</span>
+      <button class="del" onclick="quitar('${c.id}')">×</button></div>`;
+  }).join("");
+  abrir(`<h3>🛒 Tu carrito (${totalItems()})</h3><div class="filas">${filas}</div>
+    <p class="tot">Total: Bs. ${totalPrecio().toFixed(2)}</p>
+    <button onclick="finalizar()">Finalizar compra</button>
+    <button class="sec" onclick="vaciar()">Vaciar carrito</button>
+    <button class="sec" onclick="cerrar()">Seguir comprando</button>`);
+}
+
+function quitar(id) { carrito = carrito.filter(c => c.id !== id); actualizarCarrito(); verCarrito(); }
+function vaciar() { carrito = []; actualizarCarrito(); cerrar(); }
+
+// Aquí se RESTA el stock en MockAPI
+async function finalizar() {
+  const total = totalPrecio();
+  try {
+    for (const c of carrito) {
+      const p = productos.find(x => x.id === c.id);
+      if (c.cant > p.stock) throw new Error("stock");
+      const nuevo = await api("/productos/" + c.id, "PUT", { ...p, stock: Number(p.stock) - c.cant });
+      productos = productos.map(x => x.id === c.id ? nuevo : x);
+    }
+    carrito = []; actualizarCarrito(); renderTodo();
+    abrir(`<h3>✅ ¡Compra realizada!</h3><p>Total: Bs. ${total.toFixed(2)}</p><p>Gracias por tu compra.</p><button onclick="cerrar()">Cerrar</button>`);
+  } catch (e) { toast("No se pudo completar la compra, revisa el stock"); }
+}
+
+// ====== CONTACTO ======
+function renderContacto() {
+  $("#contactoBox").innerHTML = `
+    <div><b>📧 Correo</b><br><a href="mailto:${CORREO}">${CORREO}</a></div>
+    <div><b>📱 WhatsApp</b><br>+591 ${NUM_DUENO}<br>
+      <a class="btnw" href="${wa(NUM_DUENO, "Hola, quiero información sobre GameZone")}" target="_blank" rel="noopener">Abrir WhatsApp</a></div>
+    <div><b>🕒 Horario</b><br>Lunes a sábado, 9:00 a 20:00</div>`;
+}
+
+// ====== ADMIN (CRUD) ======
 const logueado = () => sessionStorage.getItem("admin") === "1";
 
 function entrar() {
@@ -227,66 +326,6 @@ async function sembrar() {
   } catch (e) { toast("Error durante la carga; revisa tu API"); cargar(); }
 }
 
+// ====== INICIO ======
 cargar();
-// ====== DATOS DE CONTACTO (cámbialos aquí) ======
-const NUM_DUENO = "64461580";    // número del dueño
-const NUM_SOPORTE = "64461580";  // número de soporte
-const CORREO = "josuemaximilianomontanocastel@gmail.com"; // revisa que esté bien escrito
-const wa = (num, msg) => `https://wa.me/591${num}?text=${encodeURIComponent(msg)}`;
-
-// ====== VENTANAS EMERGENTES ======
-function abrir(html) { $("#mbox").innerHTML = html; $("#modal").classList.remove("hide"); }
-function cerrar() { $("#modal").classList.add("hide"); }
-
-function info(tipo) {
-  if (tipo === "envios") abrir(`
-    <h3>🚚 Envíos rápidos a todo el país</h3>
-    <p>Para coordinar tu envío comunícate con el dueño:</p>
-    <p class="num">📞 ${NUM_DUENO}</p>
-    <a class="btnw" href="${wa(NUM_DUENO, "Hola, quiero coordinar un envío")}" target="_blank" rel="noopener">Escribir por WhatsApp</a>
-    <button class="sec" onclick="cerrar()">Cerrar</button>`);
-
-  if (tipo === "soporte") abrir(`
-    <h3>🎧 Soporte</h3>
-    <p>Si no puedes contactarnos o no se pudo hacer tu compra, comunícate a este número de referencia:</p>
-    <p class="num">📞 ${NUM_SOPORTE}</p>
-    <a class="btnw" href="${wa(NUM_SOPORTE, "Hola, necesito soporte con mi compra")}" target="_blank" rel="noopener">Pedir ayuda por WhatsApp</a>
-    <button class="sec" onclick="cerrar()">Cerrar</button>`);
-
-  if (tipo === "pago") abrir(`
-    <h3>🔒 Pago seguro</h3>
-    <p>Paga con tu tarjeta de débito o crédito.</p>
-    <div class="marcas"><b>VISA</b><b>Mastercard</b></div>
-    <input id="tn" placeholder="Número de tarjeta" inputmode="numeric" maxlength="19"
-      oninput="this.value=this.value.replace(/\\D/g,'').replace(/(.{4})/g,'$1 ').trim()">
-    <input id="tt" placeholder="Nombre del titular">
-    <div class="dos">
-      <input id="tv" placeholder="MM/AA" inputmode="numeric" maxlength="5"
-        oninput="let d=this.value.replace(/\\D/g,'');this.value=d.length>2?d.slice(0,2)+'/'+d.slice(2,4):d">
-      <input id="tc" placeholder="CVV" type="password" inputmode="numeric" maxlength="3"
-        oninput="this.value=this.value.replace(/\\D/g,'')">
-    </div>
-    <small>🔐 Demostración: los datos de la tarjeta no se envían ni se guardan.</small>
-    <button onclick="pagar()">Pagar</button>
-    <button class="sec" onclick="cerrar()">Cancelar</button>`);
-}
-
-function pagar() {
-  const num = $("#tn").value.replace(/\s/g, "");
-  if (num.length !== 16) return toast("El número de tarjeta debe tener 16 dígitos");
-  if (!$("#tt").value.trim()) return toast("Escribe el nombre del titular");
-  if (!/^\d{2}\/\d{2}$/.test($("#tv").value)) return toast("Fecha inválida (MM/AA)");
-  if ($("#tc").value.length !== 3) return toast("El CVV debe tener 3 dígitos");
-  cerrar();
-  toast("✅ Pago realizado correctamente (demostración)");
-}
-
-// ====== CONTACTO ======
-function renderContacto() {
-  $("#contactoBox").innerHTML = `
-    <div><b>📧 Correo</b><br><a href="mailto:${CORREO}">${CORREO}</a></div>
-    <div><b>📱 WhatsApp</b><br>+591 ${NUM_DUENO}<br>
-      <a class="btnw" href="${wa(NUM_DUENO, "Hola, quiero información sobre GameZone")}" target="_blank" rel="noopener">Abrir WhatsApp</a></div>
-    <div><b>🕒 Horario</b><br>Lunes a sábado, 9:00 a 20:00</div>`;
-}
 renderContacto();

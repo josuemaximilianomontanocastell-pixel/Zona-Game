@@ -11,6 +11,7 @@ header h1{font-size:1.4rem;margin:0;background:linear-gradient(90deg,var(--pri),
 nav{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 nav a{cursor:pointer;color:var(--mut);font-size:.95rem}
 nav a:hover{color:var(--acc)}
+#cartN{background:var(--acc);color:#04222b;border-radius:10px;padding:0 7px;font-weight:700;margin-left:2px}
 
 /* BOTONES E INPUTS */
 button{background:var(--pri);color:#fff;border:0;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:.9rem}
@@ -39,6 +40,8 @@ input,select{padding:8px 10px;border:1px solid var(--bd);border-radius:8px;backg
 .strip div{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px}
 .strip span{font-size:1.8rem}
 .strip small{color:var(--mut)}
+.strip .clic{cursor:pointer;transition:transform .15s,border-color .15s}
+.strip .clic:hover{border-color:var(--acc);transform:translateY(-3px)}
 
 /* TÍTULOS */
 .titulo{font-size:1.5rem;margin:34px 0 14px;padding-left:12px;border-left:4px solid var(--acc)}
@@ -75,7 +78,30 @@ input,select{padding:8px 10px;border:1px solid var(--bd);border-radius:8px;backg
 /* CONTACTO Y FOOTER */
 .contact{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
 .contact div{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;line-height:1.6}
+.contact a{color:var(--acc)}
+.contact .btnw{color:#04220f;margin-top:6px}
 footer{text-align:center;padding:26px;margin-top:40px;background:var(--card);border-top:2px solid var(--pri);color:var(--mut)}
+
+/* VENTANAS EMERGENTES */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:60;padding:16px}
+.modal.hide{display:none}
+.mbox{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:22px;width:100%;max-width:380px;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
+.mbox h3{margin:0}
+.mbox p{margin:0;color:var(--mut)}
+.mbox small{color:var(--mut)}
+.mbox input{width:100%}
+.num{font-size:1.9rem;font-weight:700;color:var(--acc)!important;letter-spacing:.05em}
+.btnw{display:inline-block;background:#25d366;color:#04220f;padding:9px 16px;border-radius:8px;font-weight:700;text-decoration:none;text-align:center}
+.marcas{display:flex;gap:10px}
+.marcas b{border:1px solid var(--bd);padding:4px 10px;border-radius:6px;font-style:italic}
+.dos{display:flex;gap:10px}
+.dos input{flex:1;min-width:0}
+
+/* CARRITO */
+.filas{display:flex;flex-direction:column;gap:8px;max-height:260px;overflow-y:auto}
+.fila{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px;border:1px solid var(--bd);border-radius:8px;font-size:.9rem}
+.fila button{padding:2px 9px}
+.tot{font-size:1.2rem;font-weight:700;color:var(--acc)!important;text-align:right}
 
 /* ADMIN */
 .panel{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:20px}
@@ -88,25 +114,7 @@ th,td{text-align:left;padding:8px;border-bottom:1px solid var(--bd)}
 td img{width:40px;height:40px;object-fit:cover;border-radius:6px}
 .login{max-width:320px;margin:40px auto;display:flex;flex-direction:column;gap:10px}
 
-#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--acc);color:#04222b;padding:10px 18px;border-radius:8px;display:none;z-index:50;font-weight:600}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--acc);color:#04222b;padding:10px 18px;border-radius:8px;display:none;z-index:70;font-weight:600}
 .hide{display:none}
 
 @media(max-width:600px){.hero{height:340px}.arr{display:none}nav{gap:10px}}
-/* ===== BENEFICIOS CLICABLES Y VENTANAS ===== */
-.strip .clic{cursor:pointer;transition:transform .15s,border-color .15s}
-.strip .clic:hover{border-color:var(--acc);transform:translateY(-3px)}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:60;padding:16px}
-.modal.hide{display:none}
-.mbox{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:22px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:10px}
-.mbox h3{margin:0}
-.mbox p{margin:0;color:var(--mut)}
-.mbox small{color:var(--mut)}
-.num{font-size:1.9rem;font-weight:700;color:var(--acc)!important;letter-spacing:.05em}
-.btnw{display:inline-block;background:#25d366;color:#04220f;padding:9px 16px;border-radius:8px;font-weight:700;text-decoration:none;text-align:center}
-.marcas{display:flex;gap:10px}
-.marcas b{border:1px solid var(--bd);padding:4px 10px;border-radius:6px;font-style:italic}
-.dos{display:flex;gap:10px}
-.dos input{flex:1;min-width:0}
-.mbox input{width:100%}
-.contact a{color:var(--acc)}
-.contact .btnw{color:#04220f;margin-top:6px}
